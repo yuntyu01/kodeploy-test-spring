@@ -21,6 +21,14 @@ import java.util.Set;
 public class BusReservationSystemApplication {
 
     public static void main(String[] args) {
+        // KoDeploy 환경변수 패널 테스트용 — 없으면 시작 실패.
+        // 사용자가 UI에서 APP_SECRET 추가 → 저장 → Pod 재시작 후 정상 부팅을 검증.
+        String appSecret = System.getenv("APP_SECRET");
+        if (appSecret == null || appSecret.isEmpty()) {
+            throw new IllegalStateException(
+                "필수 환경변수 누락: APP_SECRET — KoDeploy 환경변수 패널에서 추가하세요"
+            );
+        }
         SpringApplication.run(BusReservationSystemApplication.class, args);
     }
 
