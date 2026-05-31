@@ -106,6 +106,18 @@
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
 		</dependency>
+		<!-- AWS SDK v2 (S3) — R2(S3 호환) 업로드 테스트용. Dailo와 동일 SDK 계열. -->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<version>2.20.0</version>
+		</dependency>
+		<!-- 가벼운 sync HTTP 클라이언트 (JDK URLConnection 기반, 추가 transitive 최소) -->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>url-connection-client</artifactId>
+			<version>2.20.0</version>
+		</dependency>
 	</dependencies>
 
 	<profiles>
