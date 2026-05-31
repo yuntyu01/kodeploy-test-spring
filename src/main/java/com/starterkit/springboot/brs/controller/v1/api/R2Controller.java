@@ -1,17 +1,23 @@
 package com.starterkit.springboot.brs.controller.v1.api;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
@@ -110,6 +116,34 @@ public class R2Controller {
                 ListObjectsV2Request.builder().bucket(bucket()).maxKeys(100).build());
         List<String> keys = resp.contents().stream().map(S3Object::key).collect(Collectors.toList());
         return ResponseEntity.ok(Collections.singletonMap("keys", keys));
+    }
+
+    /** 단건 다운로드 — 앱(스코프 자격증명)을 통해 getObject. 공개 URL과 별개로 SDK 읽기 검증. */
+    @GetMapping("/object")
+    public ResponseEntity<?> get(@RequestParam("key") String key) {
+        if (!configured()) {
+            return ResponseEntity.status(503).body(Collections.singletonMap("error", "R2 미설정"));
+        }
+        try {
+            ResponseBytes<GetObjectResponse> obj = client().getObjectAsBytes(
+                    GetObjectRequest.builder().bucket(bucket()).key(key).build());
+            String ct = obj.response().contentType();
+            return ResponseEntity.ok()
+                    .contentType(ct != null ? MediaType.parseMediaType(ct) : MediaType.APPLICATION_OCTET_STREAM)
+                    .body(obj.asByteArray());
+        } catch (NoSuchKeyException e) {
+            return ResponseEntity.status(404).body(Collections.singletonMap("error", "없는 key: " + key));
+        }
+    }
+
+    /** 삭제 — S3 deleteObject (idempotent: 없는 key도 성공 반환). */
+    @DeleteMapping("/object")
+    public ResponseEntity<?> delete(@RequestParam("key") String key) {
+        if (!configured()) {
+            return ResponseEntity.status(503).body(Collections.singletonMap("error", "R2 미설정"));
+        }
+        client().deleteObject(DeleteObjectRequest.builder().bucket(bucket()).key(key).build());
+        return ResponseEntity.ok(Collections.singletonMap("deleted", key));
     }
 
     private static boolean notEmpty(String s) {
