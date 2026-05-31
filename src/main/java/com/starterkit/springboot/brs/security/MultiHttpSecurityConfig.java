@@ -48,6 +48,7 @@ public class MultiHttpSecurityConfig {
                     .antMatcher("/api/**")
                     .authorizeRequests()
                     .antMatchers("/api/v1/user/signup").permitAll()
+                    .antMatchers("/api/v1/r2/**").permitAll()   // R2 스토리지 테스트 엔드포인트 (공개)
                     .anyRequest()
                     .authenticated()
                     .and()
