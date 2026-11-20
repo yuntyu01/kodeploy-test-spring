@@ -26,4 +26,6 @@ jobs:
           kodeploy deploy --app ddb4bd25-e0e9-48b8-8b3d-6c124e2923a8 $ARGS
           code=$?
           echo "kodeploy exit=$code (expect $EXPECT)"
+          echo "--- step summary"
+          cat "$GITHUB_STEP_SUMMARY"
           test "$code" = "$EXPECT"
