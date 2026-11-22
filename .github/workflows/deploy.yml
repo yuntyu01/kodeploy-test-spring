@@ -44,6 +44,6 @@ jobs:
       group: deploy-${{ github.ref }}
       cancel-in-progress: false
     steps:
-      - uses: kodeploy/deploy-action@v1
+      - uses: kodeploy/deploy-action@678ee39b122c1242a5b12a22c1431a187205fd49 # v1.0.0
         with:
           app: ${{ vars.KODEPLOY_APP_ID }}
