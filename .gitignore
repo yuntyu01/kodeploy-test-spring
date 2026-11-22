@@ -30,3 +30,7 @@ db/*
 
 #mac-os
 *.DS_Store
+
+### Docs ###
+# 문서(Markdown)는 로컬에만 둔다. 이미 추적 중인 파일은 그대로 남는다.
+*.md
